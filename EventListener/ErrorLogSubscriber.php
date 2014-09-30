@@ -120,7 +120,7 @@ class ErrorLogSubscriber implements EventSubscriberInterface
                         if (preg_match("/password/i", $child->getName())) {
                             $value = "hidden_password";
                         }
-                        $values[] = $value;
+                        $values[] = is_array($value) ? json_encode($value) : $value;
                     }
 
                     // if there's more than 1 error or value on a field then we can log them all
