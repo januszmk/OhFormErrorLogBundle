@@ -106,7 +106,7 @@ class ErrorLogSubscriber implements EventSubscriberInterface
                     $data = '';
                 }
             }
-            $data = preg_replace("/password\":\"[^\"]+\"/", "password\":\"hidden_password\"", $data);
+            $data = preg_replace("/password\":\"[^\"]+\"/i", "password\":\"hidden_password\"", $data);
             $errors[$key] = array('messages'=>$error->getMessage(), 'value'=>$data);
         }
         if ($form->count() > 0) {
@@ -117,7 +117,7 @@ class ErrorLogSubscriber implements EventSubscriberInterface
                     foreach($childErrors as $childError) {
                         $messages[] = $childError['messages'];
                         $value = $childError['value'];
-                        if (preg_match("/password/", $child->getName())) {
+                        if (preg_match("/password/i", $child->getName())) {
                             $value = "hidden_password";
                         }
                         $values[] = $value;
