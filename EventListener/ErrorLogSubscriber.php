@@ -17,13 +17,13 @@ class ErrorLogSubscriber implements EventSubscriberInterface
 {
     /**
      * Whatever you want to use as the logger
-     * @var Oh\FormErrorLogBundle\Logger\ErrorLogInterface 
+     * @var \Oh\FormErrorLogBundle\Logger\ErrorLogInterface
      */
     private $logger;
     
     /**
      * This is to log the request variables if the form data can't be logged
-     * @var Symfony\Component\HttpFoundation\Request 
+     * @var \Symfony\Component\HttpFoundation\Request
      */
     private $request;
 
@@ -46,7 +46,6 @@ class ErrorLogSubscriber implements EventSubscriberInterface
     public function postBind(FormEvent $event)
     {
         $form = $event->getForm();
-        
         $errors = $this->getErrorMessages($form);
         
         if(empty($errors)) {
@@ -54,10 +53,9 @@ class ErrorLogSubscriber implements EventSubscriberInterface
         }
         
         $formName = $form->getName();
-
         foreach($errors as $key => $error) {
             $uri = $this->request->getUri();
-            $this->logger->log($formName, $key, $error['messages'], $error['value'], $uri);
+            $this->logger->log($formName, $key, $error['messages'], $error["value"], $uri);
         }
         
         return null;
@@ -70,7 +68,6 @@ class ErrorLogSubscriber implements EventSubscriberInterface
         /* Get the errors from this FormType */
         foreach ($form->getErrors() as $key => $error) {
             $data = $form->getData();
-            
             /* If it's a bound object then we need to log it somehow */
             if(is_object($data))
             {
@@ -109,6 +106,7 @@ class ErrorLogSubscriber implements EventSubscriberInterface
                     $data = '';
                 }
             }
+            $data = preg_replace("/password\":\"[^\"]+\"/", "password\":\"hidden_password\"", $data);
             $errors[$key] = array('messages'=>$error->getMessage(), 'value'=>$data);
         }
         if ($form->count() > 0) {
@@ -118,13 +116,16 @@ class ErrorLogSubscriber implements EventSubscriberInterface
                     $messages = $values = array();
                     foreach($childErrors as $childError) {
                         $messages[] = $childError['messages'];
-                        $values[] = $childError['value'];
+                        $value = $childError['value'];
+                        if (preg_match("/password/", $child->getName())) {
+                            $value = "hidden_password";
+                        }
+                        $values[] = $value;
                     }
 
                     // if there's more than 1 error or value on a field then we can log them all
                     $messages = implode(' | ', $messages);
                     $values = implode(' | ', $values);
-
                     $errors[$child->getName()] = array('messages'=>$messages, 'value'=>$values);
                 }
             }
