@@ -27,7 +27,6 @@ class Logger implements ErrorLogInterface
      */
     public function log($formName, $key, $error, $value = '', $uri = '')
     {
-        
         $this->logger->notice(strtr('%0 - Error in form "%1" in position "%2": "%3" with value "%4"', array(
             '%0'=>$uri,
             '%1'=>$formName,
